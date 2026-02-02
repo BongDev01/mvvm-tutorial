@@ -1,0 +1,1502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete MVVM Architecture Tutorial - Android Kotlin</title>
+    <style>
+        :root {
+            --primary: #3DDC84;
+            --primary-dark: #2BA55D;
+            --accent: #4285F4;
+            --bg-dark: #1E1E1E;
+            --bg-medium: #2D2D2D;
+            --bg-light: #3D3D3D;
+            --text-primary: #FFFFFF;
+            --text-secondary: #B0B0B0;
+            --code-bg: #1A1A1A;
+            --border: #4A4A4A;
+            --success: #4CAF50;
+            --warning: #FF9800;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1E1E1E 0%, #2D2D2D 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 20px rgba(61, 220, 132, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.95;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scrollbar-width: thin;
+        }
+
+        .nav-btn {
+            background: var(--bg-medium);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: var(--bg-light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border-color: var(--primary);
+        }
+
+        .section {
+            display: none;
+            background: var(--bg-medium);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        h3 {
+            color: var(--accent);
+            font-size: 1.5rem;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        h4 {
+            color: var(--primary);
+            font-size: 1.2rem;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .architecture-diagram {
+            background: var(--code-bg);
+            padding: 30px;
+            border-radius: 12px;
+            margin: 20px 0;
+            text-align: center;
+            border: 2px solid var(--primary);
+        }
+
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .flow-box {
+            background: linear-gradient(135deg, var(--accent) 0%, #357AE8 100%);
+            padding: 20px 40px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 10px rgba(66, 133, 244, 0.3);
+            min-width: 200px;
+            text-align: center;
+        }
+
+        .arrow {
+            color: var(--primary);
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-header {
+            background: var(--bg-light);
+            padding: 8px 15px;
+            border-radius: 6px 6px 0 0;
+            margin: -20px -20px 15px -20px;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 5px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        pre {
+            margin: 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #E6E6E6;
+        }
+
+        .keyword { color: #C586C0; }
+        .string { color: #CE9178; }
+        .comment { color: #6A9955; font-style: italic; }
+        .function { color: #DCDCAA; }
+        .class-name { color: #4EC9B0; }
+        .annotation { color: #FFFF00; }
+
+        .info-box {
+            background: rgba(66, 133, 244, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .success-box {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .warning-box {
+            background: rgba(255, 152, 0, 0.1);
+            border-left: 4px solid var(--warning);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        ul, ol {
+            margin: 15px 0 15px 30px;
+        }
+
+        li {
+            margin: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        strong {
+            color: var(--primary);
+        }
+
+        .folder-structure {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            margin: 15px 0;
+        }
+
+        .folder-structure div {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .folder { color: #FFD700; }
+        .file { color: #4EC9B0; }
+
+        @media (max-width: 768px) {
+            header h1 { font-size: 1.8rem; }
+            .container { padding: 10px; }
+            .section { padding: 20px; }
+            .nav-btn { padding: 10px 16px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Complete MVVM Architecture Tutorial</h1>
+            <p>Master Android MVVM with Kotlin, XML, Repository Pattern & LiveData/StateFlow</p>
+        </header>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection('overview')">Overview</button>
+            <button class="nav-btn" onclick="showSection('setup')">Setup</button>
+            <button class="nav-btn" onclick="showSection('model')">Model Layer</button>
+            <button class="nav-btn" onclick="showSection('repository')">Repository</button>
+            <button class="nav-btn" onclick="showSection('viewmodel')">ViewModel</button>
+            <button class="nav-btn" onclick="showSection('view')">View Layer</button>
+            <button class="nav-btn" onclick="showSection('complete')">Complete Flow</button>
+            <button class="nav-btn" onclick="showSection('best-practices')">Best Practices</button>
+        </div>
+
+        <!-- OVERVIEW SECTION -->
+        <div id="overview" class="section active">
+            <h2>📚 What is MVVM Architecture?</h2>
+            
+            <p><strong>MVVM (Model-View-ViewModel)</strong> is an architectural pattern that separates your app into three distinct layers:</p>
+
+            <div class="architecture-diagram">
+                <div class="flow-diagram">
+                    <div class="flow-box">VIEW (Activity/Fragment)</div>
+                    <div class="arrow">⬇️ Observes ⬇️</div>
+                    <div class="flow-box">VIEWMODEL (Business Logic)</div>
+                    <div class="arrow">⬇️ Requests Data ⬇️</div>
+                    <div class="flow-box">REPOSITORY (Data Source)</div>
+                    <div class="arrow">⬇️ Fetches From ⬇️</div>
+                    <div class="flow-box">MODEL (Network/Database)</div>
+                </div>
+            </div>
+
+            <h3>🎯 Why Use MVVM?</h3>
+            <ul>
+                <li><strong>Separation of Concerns:</strong> Each layer has a single responsibility</li>
+                <li><strong>Testability:</strong> ViewModels can be tested without Android framework</li>
+                <li><strong>Lifecycle Awareness:</strong> Survives configuration changes (rotation)</li>
+                <li><strong>Maintainability:</strong> Clean code structure, easy to update</li>
+                <li><strong>Reactive Programming:</strong> UI automatically updates when data changes</li>
+            </ul>
+
+            <h3>📦 MVVM Components Explained</h3>
+            
+            <div class="info-box">
+                <h4>1. MODEL</h4>
+                <p>• Data classes representing your app's data structure<br>
+                • API interfaces (Retrofit) and Database entities (Room)<br>
+                • Pure data, no business logic</p>
+            </div>
+
+            <div class="info-box">
+                <h4>2. VIEW</h4>
+                <p>• Activities and Fragments (XML layouts)<br>
+                • Observes ViewModel data using LiveData/StateFlow<br>
+                • Updates UI when data changes<br>
+                • Handles user interactions, delegates to ViewModel</p>
+            </div>
+
+            <div class="info-box">
+                <h4>3. VIEWMODEL</h4>
+                <p>• Holds UI-related data that survives configuration changes<br>
+                • Contains business logic and data transformations<br>
+                • Communicates with Repository to fetch data<br>
+                • Exposes data to View using LiveData/StateFlow<br>
+                • NO reference to View (Activity/Fragment)</p>
+            </div>
+
+            <div class="info-box">
+                <h4>4. REPOSITORY (Clean Architecture)</h4>
+                <p>• Single source of truth for data<br>
+                • Decides whether to fetch from network or local database<br>
+                • Abstracts data sources from ViewModel<br>
+                • Handles caching and data synchronization</p>
+            </div>
+
+            <h3>🔄 Data Flow in MVVM</h3>
+            <ol>
+                <li><strong>User Interaction:</strong> User clicks button in View (Activity)</li>
+                <li><strong>View → ViewModel:</strong> View calls ViewModel function</li>
+                <li><strong>ViewModel → Repository:</strong> ViewModel requests data from Repository</li>
+                <li><strong>Repository → Data Source:</strong> Repository fetches from API/Database</li>
+                <li><strong>Data Returns:</strong> Data flows back through layers</li>
+                <li><strong>LiveData/StateFlow Update:</strong> ViewModel updates observable data</li>
+                <li><strong>View Observes:</strong> View automatically receives update and refreshes UI</li>
+            </ol>
+
+            <div class="success-box">
+                <strong>✅ Key Principle:</strong> ViewModel should NEVER hold a reference to View (Activity/Fragment). This prevents memory leaks and makes testing easier.
+            </div>
+        </div>
+
+        <!-- SETUP SECTION -->
+        <div id="setup" class="section">
+            <h2>⚙️ Project Setup</h2>
+
+            <h3>1️⃣ Add Dependencies (build.gradle.kts - Module Level)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>app/build.gradle.kts</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>dependencies {
+    <span class="comment">// Core AndroidX</span>
+    implementation(<span class="string">"androidx.core:core-ktx:1.12.0"</span>)
+    implementation(<span class="string">"androidx.appcompat:appcompat:1.6.1"</span>)
+    implementation(<span class="string">"com.google.android.material:material:1.11.0"</span>)
+    implementation(<span class="string">"androidx.constraintlayout:constraintlayout:2.1.4"</span>)
+    
+    <span class="comment">// ViewModel and LiveData</span>
+    implementation(<span class="string">"androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0"</span>)
+    implementation(<span class="string">"androidx.lifecycle:lifecycle-livedata-ktx:2.7.0"</span>)
+    implementation(<span class="string">"androidx.lifecycle:lifecycle-runtime-ktx:2.7.0"</span>)
+    implementation(<span class="string">"androidx.activity:activity-ktx:1.8.2"</span>)
+    
+    <span class="comment">// Coroutines</span>
+    implementation(<span class="string">"org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"</span>)
+    
+    <span class="comment">// Retrofit for API calls</span>
+    implementation(<span class="string">"com.squareup.retrofit2:retrofit:2.9.0"</span>)
+    implementation(<span class="string">"com.squareup.retrofit2:converter-gson:2.9.0"</span>)
+    implementation(<span class="string">"com.squareup.okhttp3:logging-interceptor:4.12.0"</span>)
+    
+    <span class="comment">// Room Database (optional but recommended)</span>
+    implementation(<span class="string">"androidx.room:room-runtime:2.6.1"</span>)
+    implementation(<span class="string">"androidx.room:room-ktx:2.6.1"</span>)
+    
+    <span class="comment">// Testing</span>
+    testImplementation(<span class="string">"junit:junit:4.13.2"</span>)
+    testImplementation(<span class="string">"androidx.arch.core:core-testing:2.2.0"</span>)
+}</code></pre>
+            </div>
+
+            <h3>2️⃣ Enable ViewBinding (Recommended over findViewById)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>app/build.gradle.kts</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code>android {
+    <span class="comment">// ...</span>
+    buildFeatures {
+        viewBinding = <span class="keyword">true</span>
+    }
+}</code></pre>
+            </div>
+
+            <h3>3️⃣ Project Structure</h3>
+            
+            <div class="folder-structure">
+                <div>📁 <span class="folder">app/src/main/java/com/yourapp/</span></div>
+                <div>├── 📁 <span class="folder">model/</span></div>
+                <div>│   ├── 📄 <span class="file">User.kt</span> (Data class)</div>
+                <div>│   └── 📄 <span class="file">ApiService.kt</span> (Retrofit interface)</div>
+                <div>├── 📁 <span class="folder">repository/</span></div>
+                <div>│   └── 📄 <span class="file">UserRepository.kt</span></div>
+                <div>├── 📁 <span class="folder">viewmodel/</span></div>
+                <div>│   └── 📄 <span class="file">UserViewModel.kt</span></div>
+                <div>├── 📁 <span class="folder">view/</span></div>
+                <div>│   └── 📄 <span class="file">MainActivity.kt</span></div>
+                <div>└── 📁 <span class="folder">utils/</span></div>
+                <div>    └── 📄 <span class="file">Resource.kt</span> (Result wrapper)</div>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Important:</strong> Add internet permission in AndroidManifest.xml:
+                <br><code>&lt;uses-permission android:name="android.permission.INTERNET" /&gt;</code>
+            </div>
+        </div>
+
+        <!-- MODEL SECTION -->
+        <div id="model" class="section">
+            <h2>📦 Model Layer - Data Classes & API</h2>
+
+            <h3>1️⃣ Data Class (Model)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>model/User.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.model
+
+<span class="keyword">import</span> com.google.gson.annotations.SerializedName
+
+<span class="comment">// Data class representing User entity</span>
+<span class="annotation">@Parcelize</span>
+<span class="keyword">data class</span> <span class="class-name">User</span>(
+    <span class="annotation">@SerializedName("id")</span>
+    <span class="keyword">val</span> id: <span class="class-name">Int</span>,
+    
+    <span class="annotation">@SerializedName("name")</span>
+    <span class="keyword">val</span> name: <span class="class-name">String</span>,
+    
+    <span class="annotation">@SerializedName("email")</span>
+    <span class="keyword">val</span> email: <span class="class-name">String</span>,
+    
+    <span class="annotation">@SerializedName("username")</span>
+    <span class="keyword">val</span> username: <span class="class-name">String</span>
+) : <span class="class-name">Parcelable</span>
+
+<span class="comment">// Response wrapper for list of users</span>
+<span class="keyword">data class</span> <span class="class-name">UsersResponse</span>(
+    <span class="keyword">val</span> users: <span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;
+)</code></pre>
+            </div>
+
+            <h3>2️⃣ API Service (Retrofit Interface)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>model/ApiService.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.model
+
+<span class="keyword">import</span> retrofit2.Response
+<span class="keyword">import</span> retrofit2.http.GET
+<span class="keyword">import</span> retrofit2.http.Path
+
+<span class="keyword">interface</span> <span class="class-name">ApiService</span> {
+    
+    <span class="comment">// Get all users</span>
+    <span class="annotation">@GET("users")</span>
+    <span class="keyword">suspend fun</span> <span class="function">getUsers</span>(): <span class="class-name">Response</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;
+    
+    <span class="comment">// Get user by ID</span>
+    <span class="annotation">@GET("users/{id}")</span>
+    <span class="keyword">suspend fun</span> <span class="function">getUserById</span>(
+        <span class="annotation">@Path("id")</span> userId: <span class="class-name">Int</span>
+    ): <span class="class-name">Response</span>&lt;<span class="class-name">User</span>&gt;
+}</code></pre>
+            </div>
+
+            <h3>3️⃣ Retrofit Client Builder</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>model/RetrofitClient.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.model
+
+<span class="keyword">import</span> okhttp3.OkHttpClient
+<span class="keyword">import</span> okhttp3.logging.HttpLoggingInterceptor
+<span class="keyword">import</span> retrofit2.Retrofit
+<span class="keyword">import</span> retrofit2.converter.gson.GsonConverterFactory
+<span class="keyword">import</span> java.util.concurrent.TimeUnit
+
+<span class="keyword">object</span> <span class="class-name">RetrofitClient</span> {
+    
+    <span class="keyword">private const val</span> <span class="class-name">BASE_URL</span> = <span class="string">"https://jsonplaceholder.typicode.com/"</span>
+    
+    <span class="comment">// Logging interceptor for debugging</span>
+    <span class="keyword">private val</span> loggingInterceptor = <span class="class-name">HttpLoggingInterceptor</span>().apply {
+        level = <span class="class-name">HttpLoggingInterceptor</span>.<span class="class-name">Level</span>.<span class="class-name">BODY</span>
+    }
+    
+    <span class="comment">// OkHttp client with timeout settings</span>
+    <span class="keyword">private val</span> okHttpClient = <span class="class-name">OkHttpClient</span>.<span class="class-name">Builder</span>()
+        .addInterceptor(loggingInterceptor)
+        .connectTimeout(<span class="class-name">30</span>, <span class="class-name">TimeUnit</span>.<span class="class-name">SECONDS</span>)
+        .readTimeout(<span class="class-name">30</span>, <span class="class-name">TimeUnit</span>.<span class="class-name">SECONDS</span>)
+        .build()
+    
+    <span class="comment">// Retrofit instance</span>
+    <span class="keyword">private val</span> retrofit: <span class="class-name">Retrofit</span> = <span class="class-name">Retrofit</span>.<span class="class-name">Builder</span>()
+        .baseUrl(<span class="class-name">BASE_URL</span>)
+        .client(okHttpClient)
+        .addConverterFactory(<span class="class-name">GsonConverterFactory</span>.create())
+        .build()
+    
+    <span class="comment">// API service instance</span>
+    <span class="keyword">val</span> apiService: <span class="class-name">ApiService</span> = retrofit.create(<span class="class-name">ApiService</span>::<span class="keyword">class</span>.java)
+}</code></pre>
+            </div>
+
+            <h3>4️⃣ Resource Wrapper (For Handling States)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>utils/Resource.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.utils
+
+<span class="comment">// Sealed class to represent different states of data</span>
+<span class="keyword">sealed class</span> <span class="class-name">Resource</span>&lt;<span class="class-name">T</span>&gt;(
+    <span class="keyword">val</span> data: <span class="class-name">T</span>? = <span class="keyword">null</span>,
+    <span class="keyword">val</span> message: <span class="class-name">String</span>? = <span class="keyword">null</span>
+) {
+    <span class="comment">// Success state with data</span>
+    <span class="keyword">class</span> <span class="class-name">Success</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">data</span>: <span class="class-name">T</span>) : <span class="class-name">Resource</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">data</span>)
+    
+    <span class="comment">// Error state with message</span>
+    <span class="keyword">class</span> <span class="class-name">Error</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">message</span>: <span class="class-name">String</span>, <span class="keyword">data</span>: <span class="class-name">T</span>? = <span class="keyword">null</span>) : <span class="class-name">Resource</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">data</span>, <span class="keyword">message</span>)
+    
+    <span class="comment">// Loading state</span>
+    <span class="keyword">class</span> <span class="class-name">Loading</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">data</span>: <span class="class-name">T</span>? = <span class="keyword">null</span>) : <span class="class-name">Resource</span>&lt;<span class="class-name">T</span>&gt;(<span class="keyword">data</span>)
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 Why Resource Wrapper?</strong><br>
+                It helps manage three states: Loading, Success, and Error. The View can show different UI based on these states (progress bar, data, or error message).
+            </div>
+        </div>
+
+        <!-- REPOSITORY SECTION -->
+        <div id="repository" class="section">
+            <h2>🗄️ Repository Layer - Single Source of Truth</h2>
+
+            <h3>What is Repository Pattern?</h3>
+            <p>Repository acts as a mediator between ViewModel and data sources (API, Database). It decides whether to fetch from network or local cache.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>repository/UserRepository.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.repository
+
+<span class="keyword">import</span> com.yourapp.model.ApiService
+<span class="keyword">import</span> com.yourapp.model.User
+<span class="keyword">import</span> com.yourapp.utils.Resource
+<span class="keyword">import</span> kotlinx.coroutines.Dispatchers
+<span class="keyword">import</span> kotlinx.coroutines.withContext
+
+<span class="keyword">class</span> <span class="class-name">UserRepository</span>(<span class="keyword">private val</span> apiService: <span class="class-name">ApiService</span>) {
+    
+    <span class="comment">/**
+     * Fetch all users from API
+     * Returns Resource wrapper with Loading, Success, or Error state
+     */</span>
+    <span class="keyword">suspend fun</span> <span class="function">getAllUsers</span>(): <span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt; {
+        <span class="keyword">return</span> withContext(<span class="class-name">Dispatchers</span>.<span class="class-name">IO</span>) {
+            <span class="keyword">try</span> {
+                <span class="comment">// Make network call</span>
+                <span class="keyword">val</span> response = apiService.getUsers()
+                
+                <span class="keyword">if</span> (response.isSuccessful && response.body() != <span class="keyword">null</span>) {
+                    <span class="comment">// Success - return data</span>
+                    <span class="class-name">Resource</span>.<span class="class-name">Success</span>(response.body()!!)
+                } <span class="keyword">else</span> {
+                    <span class="comment">// API error</span>
+                    <span class="class-name">Resource</span>.<span class="class-name">Error</span>(<span class="string">"Error: ${response.code()} ${response.message()}"</span>)
+                }
+            } <span class="keyword">catch</span> (e: <span class="class-name">Exception</span>) {
+                <span class="comment">// Network or parsing error</span>
+                <span class="class-name">Resource</span>.<span class="class-name">Error</span>(e.message ?: <span class="string">"An unknown error occurred"</span>)
+            }
+        }
+    }
+    
+    <span class="comment">/**
+     * Fetch single user by ID
+     */</span>
+    <span class="keyword">suspend fun</span> <span class="function">getUserById</span>(userId: <span class="class-name">Int</span>): <span class="class-name">Resource</span>&lt;<span class="class-name">User</span>&gt; {
+        <span class="keyword">return</span> withContext(<span class="class-name">Dispatchers</span>.<span class="class-name">IO</span>) {
+            <span class="keyword">try</span> {
+                <span class="keyword">val</span> response = apiService.getUserById(userId)
+                
+                <span class="keyword">if</span> (response.isSuccessful && response.body() != <span class="keyword">null</span>) {
+                    <span class="class-name">Resource</span>.<span class="class-name">Success</span>(response.body()!!)
+                } <span class="keyword">else</span> {
+                    <span class="class-name">Resource</span>.<span class="class-name">Error</span>(<span class="string">"User not found"</span>)
+                }
+            } <span class="keyword">catch</span> (e: <span class="class-name">Exception</span>) {
+                <span class="class-name">Resource</span>.<span class="class-name">Error</span>(e.message ?: <span class="string">"Failed to fetch user"</span>)
+            }
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div class="success-box">
+                <strong>✅ Repository Best Practices:</strong>
+                <ul>
+                    <li>Use <code>withContext(Dispatchers.IO)</code> for network/database operations</li>
+                    <li>Wrap responses in Resource class for state management</li>
+                    <li>Handle exceptions and return meaningful error messages</li>
+                    <li>Repository should NOT know about Android components (no Context)</li>
+                    <li>Can implement caching logic: check local DB first, then fetch from API</li>
+                </ul>
+            </div>
+
+            <h3>🔄 Advanced: Repository with Caching</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Repository with Database Cache (Optional)</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">suspend fun</span> <span class="function">getUsersWithCache</span>(): <span class="class-name">Flow</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;&gt; = flow {
+    <span class="comment">// First emit Loading state</span>
+    emit(<span class="class-name">Resource</span>.<span class="class-name">Loading</span>())
+    
+    <span class="comment">// Try to get from local database first</span>
+    <span class="keyword">val</span> localUsers = userDao.getAllUsers()
+    <span class="keyword">if</span> (localUsers.isNotEmpty()) {
+        emit(<span class="class-name">Resource</span>.<span class="class-name">Success</span>(localUsers))
+    }
+    
+    <span class="comment">// Then fetch fresh data from API</span>
+    <span class="keyword">try</span> {
+        <span class="keyword">val</span> response = apiService.getUsers()
+        <span class="keyword">if</span> (response.isSuccessful && response.body() != <span class="keyword">null</span>) {
+            <span class="comment">// Save to database</span>
+            userDao.insertUsers(response.body()!!)
+            <span class="comment">// Emit updated data</span>
+            emit(<span class="class-name">Resource</span>.<span class="class-name">Success</span>(response.body()!!))
+        }
+    } <span class="keyword">catch</span> (e: <span class="class-name">Exception</span>) {
+        emit(<span class="class-name">Resource</span>.<span class="class-name">Error</span>(e.message ?: <span class="string">"Error"</span>))
+    }
+}.flowOn(<span class="class-name">Dispatchers</span>.<span class="class-name">IO</span>)</code></pre>
+            </div>
+        </div>
+
+        <!-- VIEWMODEL SECTION -->
+        <div id="viewmodel" class="section">
+            <h2>🧠 ViewModel Layer - Business Logic</h2>
+
+            <h3>What is ViewModel?</h3>
+            <p>ViewModel holds UI-related data and survives configuration changes. It communicates with Repository and exposes data to View using LiveData or StateFlow.</p>
+
+            <div class="code-block">
+                <div class="code-header">
+                    <span>viewmodel/UserViewModel.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.viewmodel
+
+<span class="keyword">import</span> androidx.lifecycle.LiveData
+<span class="keyword">import</span> androidx.lifecycle.MutableLiveData
+<span class="keyword">import</span> androidx.lifecycle.ViewModel
+<span class="keyword">import</span> androidx.lifecycle.viewModelScope
+<span class="keyword">import</span> com.yourapp.model.User
+<span class="keyword">import</span> com.yourapp.repository.UserRepository
+<span class="keyword">import</span> com.yourapp.utils.Resource
+<span class="keyword">import</span> kotlinx.coroutines.launch
+
+<span class="keyword">class</span> <span class="class-name">UserViewModel</span>(<span class="keyword">private val</span> repository: <span class="class-name">UserRepository</span>) : <span class="class-name">ViewModel</span>() {
+    
+    <span class="comment">// Private MutableLiveData (can be modified internally)</span>
+    <span class="keyword">private val</span> _users = <span class="class-name">MutableLiveData</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;&gt;()
+    
+    <span class="comment">// Public LiveData (read-only for View)</span>
+    <span class="keyword">val</span> users: <span class="class-name">LiveData</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;&gt; = _users
+    
+    <span class="comment">// Single user LiveData</span>
+    <span class="keyword">private val</span> _selectedUser = <span class="class-name">MutableLiveData</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">User</span>&gt;&gt;()
+    <span class="keyword">val</span> selectedUser: <span class="class-name">LiveData</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">User</span>&gt;&gt; = _selectedUser
+    
+    <span class="comment">/**
+     * Fetch all users
+     * Called from View (Activity/Fragment)
+     */</span>
+    <span class="keyword">fun</span> <span class="function">fetchUsers</span>() {
+        <span class="comment">// Launch coroutine in viewModelScope</span>
+        <span class="comment">// Automatically cancelled when ViewModel is cleared</span>
+        viewModelScope.launch {
+            <span class="comment">// Show loading state</span>
+            _users.postValue(<span class="class-name">Resource</span>.<span class="class-name">Loading</span>())
+            
+            <span class="comment">// Get data from repository</span>
+            <span class="keyword">val</span> result = repository.getAllUsers()
+            
+            <span class="comment">// Update LiveData with result</span>
+            _users.postValue(result)
+        }
+    }
+    
+    <span class="comment">/**
+     * Fetch user by ID
+     */</span>
+    <span class="keyword">fun</span> <span class="function">fetchUserById</span>(userId: <span class="class-name">Int</span>) {
+        viewModelScope.launch {
+            _selectedUser.postValue(<span class="class-name">Resource</span>.<span class="class-name">Loading</span>())
+            
+            <span class="keyword">val</span> result = repository.getUserById(userId)
+            
+            _selectedUser.postValue(result)
+        }
+    }
+    
+    <span class="comment">/**
+     * Refresh data (pull-to-refresh)
+     */</span>
+    <span class="keyword">fun</span> <span class="function">refreshUsers</span>() {
+        fetchUsers()
+    }
+}</code></pre>
+            </div>
+
+            <h3>🏭 ViewModel Factory (For Constructor Parameters)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>viewmodel/UserViewModelFactory.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.viewmodel
+
+<span class="keyword">import</span> androidx.lifecycle.ViewModel
+<span class="keyword">import</span> androidx.lifecycle.ViewModelProvider
+<span class="keyword">import</span> com.yourapp.repository.UserRepository
+
+<span class="comment">/**
+ * Factory class to create ViewModel with custom constructor
+ */</span>
+<span class="keyword">class</span> <span class="class-name">UserViewModelFactory</span>(
+    <span class="keyword">private val</span> repository: <span class="class-name">UserRepository</span>
+) : <span class="class-name">ViewModelProvider</span>.<span class="class-name">Factory</span> {
+    
+    <span class="keyword">override fun</span> &lt;<span class="class-name">T</span> : <span class="class-name">ViewModel</span>&gt; <span class="function">create</span>(modelClass: <span class="class-name">Class</span>&lt;<span class="class-name">T</span>&gt;): <span class="class-name">T</span> {
+        <span class="keyword">if</span> (modelClass.isAssignableFrom(<span class="class-name">UserViewModel</span>::<span class="keyword">class</span>.java)) {
+            <span class="annotation">@Suppress("UNCHECKED_CAST")</span>
+            <span class="keyword">return</span> <span class="class-name">UserViewModel</span>(repository) <span class="keyword">as</span> <span class="class-name">T</span>
+        }
+        <span class="keyword">throw</span> <span class="class-name">IllegalArgumentException</span>(<span class="string">"Unknown ViewModel class"</span>)
+    }
+}</code></pre>
+            </div>
+
+            <h3>🌊 Using StateFlow (Modern Alternative to LiveData)</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>ViewModel with StateFlow</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">import</span> kotlinx.coroutines.flow.MutableStateFlow
+<span class="keyword">import</span> kotlinx.coroutines.flow.StateFlow
+<span class="keyword">import</span> kotlinx.coroutines.flow.asStateFlow
+
+<span class="keyword">class</span> <span class="class-name">UserViewModel</span>(<span class="keyword">private val</span> repository: <span class="class-name">UserRepository</span>) : <span class="class-name">ViewModel</span>() {
+    
+    <span class="comment">// StateFlow version</span>
+    <span class="keyword">private val</span> _usersState = <span class="class-name">MutableStateFlow</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;&gt;(<span class="class-name">Resource</span>.<span class="class-name">Loading</span>())
+    <span class="keyword">val</span> usersState: <span class="class-name">StateFlow</span>&lt;<span class="class-name">Resource</span>&lt;<span class="class-name">List</span>&lt;<span class="class-name">User</span>&gt;&gt;&gt; = _usersState.asStateFlow()
+    
+    <span class="keyword">fun</span> <span class="function">fetchUsers</span>() {
+        viewModelScope.launch {
+            _usersState.value = <span class="class-name">Resource</span>.<span class="class-name">Loading</span>()
+            <span class="keyword">val</span> result = repository.getAllUsers()
+            _usersState.value = result
+        }
+    }
+}</code></pre>
+            </div>
+
+            <div class="info-box">
+                <strong>💡 LiveData vs StateFlow:</strong><br>
+                • <strong>LiveData:</strong> Lifecycle-aware, simpler for beginners, Android-specific<br>
+                • <strong>StateFlow:</strong> Part of Kotlin Coroutines, works across platforms, more powerful for complex flows<br>
+                • <strong>Recommendation:</strong> Use LiveData for simple cases, StateFlow for complex reactive scenarios
+            </div>
+
+            <div class="warning-box">
+                <strong>⚠️ Critical Rules for ViewModel:</strong><br>
+                • NEVER hold reference to Activity, Fragment, or View<br>
+                • NEVER pass Context (use AndroidViewModel if needed)<br>
+                • Use viewModelScope for coroutines (auto-cancellation)<br>
+                • Expose immutable LiveData/StateFlow to View (public read-only)<br>
+                • Keep MutableLiveData/MutableStateFlow private
+            </div>
+        </div>
+
+        <!-- VIEW SECTION -->
+        <div id="view" class="section">
+            <h2>🖥️ View Layer - UI (Activity/Fragment)</h2>
+
+            <h3>1️⃣ XML Layout</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>res/layout/activity_main.xml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="string">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="string">&lt;androidx.constraintlayout.widget.ConstraintLayout</span>
+    <span class="string">xmlns:android="http://schemas.android.com/apk/res/android"</span>
+    <span class="string">xmlns:app="http://schemas.android.com/apk/res-auto"</span>
+    <span class="string">xmlns:tools="http://schemas.android.com/tools"</span>
+    <span class="string">android:layout_width="match_parent"</span>
+    <span class="string">android:layout_height="match_parent"</span>
+    <span class="string">android:padding="16dp"</span>
+    <span class="string">tools:context=".view.MainActivity"&gt;</span>
+
+    <span class="comment">&lt;!-- Progress Bar --&gt;</span>
+    <span class="string">&lt;ProgressBar</span>
+        <span class="string">android:id="@+id/progressBar"</span>
+        <span class="string">android:layout_width="wrap_content"</span>
+        <span class="string">android:layout_height="wrap_content"</span>
+        <span class="string">android:visibility="gone"</span>
+        <span class="string">app:layout_constraintTop_toTopOf="parent"</span>
+        <span class="string">app:layout_constraintBottom_toBottomOf="parent"</span>
+        <span class="string">app:layout_constraintStart_toStartOf="parent"</span>
+        <span class="string">app:layout_constraintEnd_toEndOf="parent" /&gt;</span>
+
+    <span class="comment">&lt;!-- Fetch Users Button --&gt;</span>
+    <span class="string">&lt;Button</span>
+        <span class="string">android:id="@+id/btnFetchUsers"</span>
+        <span class="string">android:layout_width="0dp"</span>
+        <span class="string">android:layout_height="wrap_content"</span>
+        <span class="string">android:text="Fetch Users"</span>
+        <span class="string">android:textSize="16sp"</span>
+        <span class="string">app:layout_constraintTop_toTopOf="parent"</span>
+        <span class="string">app:layout_constraintStart_toStartOf="parent"</span>
+        <span class="string">app:layout_constraintEnd_toEndOf="parent" /&gt;</span>
+
+    <span class="comment">&lt;!-- RecyclerView for User List --&gt;</span>
+    <span class="string">&lt;androidx.recyclerview.widget.RecyclerView</span>
+        <span class="string">android:id="@+id/recyclerView"</span>
+        <span class="string">android:layout_width="0dp"</span>
+        <span class="string">android:layout_height="0dp"</span>
+        <span class="string">android:layout_marginTop="16dp"</span>
+        <span class="string">app:layout_constraintTop_toBottomOf="@id/btnFetchUsers"</span>
+        <span class="string">app:layout_constraintBottom_toBottomOf="parent"</span>
+        <span class="string">app:layout_constraintStart_toStartOf="parent"</span>
+        <span class="string">app:layout_constraintEnd_toEndOf="parent"</span>
+        <span class="string">tools:listitem="@layout/item_user" /&gt;</span>
+
+    <span class="comment">&lt;!-- Error Text View --&gt;</span>
+    <span class="string">&lt;TextView</span>
+        <span class="string">android:id="@+id/tvError"</span>
+        <span class="string">android:layout_width="wrap_content"</span>
+        <span class="string">android:layout_height="wrap_content"</span>
+        <span class="string">android:visibility="gone"</span>
+        <span class="string">android:textColor="#F44336"</span>
+        <span class="string">android:textSize="16sp"</span>
+        <span class="string">android:gravity="center"</span>
+        <span class="string">app:layout_constraintTop_toTopOf="parent"</span>
+        <span class="string">app:layout_constraintBottom_toBottomOf="parent"</span>
+        <span class="string">app:layout_constraintStart_toStartOf="parent"</span>
+        <span class="string">app:layout_constraintEnd_toEndOf="parent" /&gt;</span>
+
+<span class="string">&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;</span></code></pre>
+            </div>
+
+            <h3>2️⃣ MainActivity - Observing ViewModel</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>view/MainActivity.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.view
+
+<span class="keyword">import</span> android.os.Bundle
+<span class="keyword">import</span> android.view.View
+<span class="keyword">import</span> androidx.appcompat.app.AppCompatActivity
+<span class="keyword">import</span> androidx.lifecycle.ViewModelProvider
+<span class="keyword">import</span> androidx.recyclerview.widget.LinearLayoutManager
+<span class="keyword">import</span> com.yourapp.databinding.ActivityMainBinding
+<span class="keyword">import</span> com.yourapp.model.RetrofitClient
+<span class="keyword">import</span> com.yourapp.repository.UserRepository
+<span class="keyword">import</span> com.yourapp.utils.Resource
+<span class="keyword">import</span> com.yourapp.viewmodel.UserViewModel
+<span class="keyword">import</span> com.yourapp.viewmodel.UserViewModelFactory
+
+<span class="keyword">class</span> <span class="class-name">MainActivity</span> : <span class="class-name">AppCompatActivity</span>() {
+    
+    <span class="comment">// View Binding</span>
+    <span class="keyword">private lateinit var</span> binding: <span class="class-name">ActivityMainBinding</span>
+    
+    <span class="comment">// ViewModel</span>
+    <span class="keyword">private lateinit var</span> viewModel: <span class="class-name">UserViewModel</span>
+    
+    <span class="comment">// Adapter for RecyclerView</span>
+    <span class="keyword">private lateinit var</span> userAdapter: <span class="class-name">UserAdapter</span>
+    
+    <span class="keyword">override fun</span> <span class="function">onCreate</span>(savedInstanceState: <span class="class-name">Bundle</span>?) {
+        <span class="keyword">super</span>.onCreate(savedInstanceState)
+        
+        <span class="comment">// Initialize ViewBinding</span>
+        binding = <span class="class-name">ActivityMainBinding</span>.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        <span class="comment">// Setup ViewModel</span>
+        setupViewModel()
+        
+        <span class="comment">// Setup RecyclerView</span>
+        setupRecyclerView()
+        
+        <span class="comment">// Setup Observers</span>
+        setupObservers()
+        
+        <span class="comment">// Setup Click Listeners</span>
+        setupClickListeners()
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">setupViewModel</span>() {
+        <span class="comment">// Create Repository</span>
+        <span class="keyword">val</span> repository = <span class="class-name">UserRepository</span>(<span class="class-name">RetrofitClient</span>.apiService)
+        
+        <span class="comment">// Create ViewModel Factory</span>
+        <span class="keyword">val</span> factory = <span class="class-name">UserViewModelFactory</span>(repository)
+        
+        <span class="comment">// Get ViewModel instance</span>
+        viewModel = <span class="class-name">ViewModelProvider</span>(<span class="keyword">this</span>, factory)[<span class="class-name">UserViewModel</span>::<span class="keyword">class</span>.java]
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">setupRecyclerView</span>() {
+        userAdapter = <span class="class-name">UserAdapter</span>()
+        binding.recyclerView.apply {
+            layoutManager = <span class="class-name">LinearLayoutManager</span>(<span class="keyword">this@MainActivity</span>)
+            adapter = userAdapter
+        }
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">setupObservers</span>() {
+        <span class="comment">// Observe users LiveData</span>
+        viewModel.users.observe(<span class="keyword">this</span>) { resource -&gt;
+            <span class="keyword">when</span> (resource) {
+                <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Loading</span> -&gt; {
+                    <span class="comment">// Show loading</span>
+                    showLoading(<span class="keyword">true</span>)
+                    hideError()
+                }
+                
+                <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Success</span> -&gt; {
+                    <span class="comment">// Hide loading, show data</span>
+                    showLoading(<span class="keyword">false</span>)
+                    hideError()
+                    
+                    resource.data?.let { users -&gt;
+                        userAdapter.submitList(users)
+                    }
+                }
+                
+                <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Error</span> -&gt; {
+                    <span class="comment">// Hide loading, show error</span>
+                    showLoading(<span class="keyword">false</span>)
+                    showError(resource.message ?: <span class="string">"Unknown error"</span>)
+                }
+            }
+        }
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">setupClickListeners</span>() {
+        binding.btnFetchUsers.setOnClickListener {
+            <span class="comment">// Call ViewModel to fetch data</span>
+            viewModel.fetchUsers()
+        }
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">showLoading</span>(isLoading: <span class="class-name">Boolean</span>) {
+        binding.progressBar.visibility = <span class="keyword">if</span> (isLoading) <span class="class-name">View</span>.<span class="class-name">VISIBLE</span> <span class="keyword">else</span> <span class="class-name">View</span>.<span class="class-name">GONE</span>
+        binding.recyclerView.visibility = <span class="keyword">if</span> (isLoading) <span class="class-name">View</span>.<span class="class-name">GONE</span> <span class="keyword">else</span> <span class="class-name">View</span>.<span class="class-name">VISIBLE</span>
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">showError</span>(message: <span class="class-name">String</span>) {
+        binding.tvError.text = message
+        binding.tvError.visibility = <span class="class-name">View</span>.<span class="class-name">VISIBLE</span>
+        binding.recyclerView.visibility = <span class="class-name">View</span>.<span class="class-name">GONE</span>
+    }
+    
+    <span class="keyword">private fun</span> <span class="function">hideError</span>() {
+        binding.tvError.visibility = <span class="class-name">View</span>.<span class="class-name">GONE</span>
+    }
+}</code></pre>
+            </div>
+
+            <h3>3️⃣ RecyclerView Adapter</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>view/UserAdapter.kt</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">package</span> com.yourapp.view
+
+<span class="keyword">import</span> android.view.LayoutInflater
+<span class="keyword">import</span> android.view.ViewGroup
+<span class="keyword">import</span> androidx.recyclerview.widget.DiffUtil
+<span class="keyword">import</span> androidx.recyclerview.widget.ListAdapter
+<span class="keyword">import</span> androidx.recyclerview.widget.RecyclerView
+<span class="keyword">import</span> com.yourapp.databinding.ItemUserBinding
+<span class="keyword">import</span> com.yourapp.model.User
+
+<span class="keyword">class</span> <span class="class-name">UserAdapter</span> : <span class="class-name">ListAdapter</span>&lt;<span class="class-name">User</span>, <span class="class-name">UserAdapter</span>.<span class="class-name">UserViewHolder</span>&gt;(<span class="class-name">UserDiffCallback</span>()) {
+    
+    <span class="keyword">override fun</span> <span class="function">onCreateViewHolder</span>(parent: <span class="class-name">ViewGroup</span>, viewType: <span class="class-name">Int</span>): <span class="class-name">UserViewHolder</span> {
+        <span class="keyword">val</span> binding = <span class="class-name">ItemUserBinding</span>.inflate(
+            <span class="class-name">LayoutInflater</span>.from(parent.context),
+            parent,
+            <span class="keyword">false</span>
+        )
+        <span class="keyword">return</span> <span class="class-name">UserViewHolder</span>(binding)
+    }
+    
+    <span class="keyword">override fun</span> <span class="function">onBindViewHolder</span>(holder: <span class="class-name">UserViewHolder</span>, position: <span class="class-name">Int</span>) {
+        holder.bind(getItem(position))
+    }
+    
+    <span class="keyword">inner class</span> <span class="class-name">UserViewHolder</span>(<span class="keyword">private val</span> binding: <span class="class-name">ItemUserBinding</span>) :
+        <span class="class-name">RecyclerView</span>.<span class="class-name">ViewHolder</span>(binding.root) {
+        
+        <span class="keyword">fun</span> <span class="function">bind</span>(user: <span class="class-name">User</span>) {
+            binding.tvName.text = user.name
+            binding.tvEmail.text = user.email
+            binding.tvUsername.text = <span class="string">"@${user.username}"</span>
+        }
+    }
+    
+    <span class="keyword">class</span> <span class="class-name">UserDiffCallback</span> : <span class="class-name">DiffUtil</span>.<span class="class-name">ItemCallback</span>&lt;<span class="class-name">User</span>&gt;() {
+        <span class="keyword">override fun</span> <span class="function">areItemsTheSame</span>(oldItem: <span class="class-name">User</span>, newItem: <span class="class-name">User</span>) = 
+            oldItem.id == newItem.id
+        
+        <span class="keyword">override fun</span> <span class="function">areContentsTheSame</span>(oldItem: <span class="class-name">User</span>, newItem: <span class="class-name">User</span>) = 
+            oldItem == newItem
+    }
+}</code></pre>
+            </div>
+
+            <h3>4️⃣ RecyclerView Item Layout</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>res/layout/item_user.xml</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="string">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
+<span class="string">&lt;androidx.cardview.widget.CardView</span>
+    <span class="string">xmlns:android="http://schemas.android.com/apk/res/android"</span>
+    <span class="string">xmlns:app="http://schemas.android.com/apk/res-auto"</span>
+    <span class="string">android:layout_width="match_parent"</span>
+    <span class="string">android:layout_height="wrap_content"</span>
+    <span class="string">android:layout_margin="8dp"</span>
+    <span class="string">app:cardCornerRadius="8dp"</span>
+    <span class="string">app:cardElevation="4dp"&gt;</span>
+
+    <span class="string">&lt;LinearLayout</span>
+        <span class="string">android:layout_width="match_parent"</span>
+        <span class="string">android:layout_height="wrap_content"</span>
+        <span class="string">android:orientation="vertical"</span>
+        <span class="string">android:padding="16dp"&gt;</span>
+
+        <span class="string">&lt;TextView</span>
+            <span class="string">android:id="@+id/tvName"</span>
+            <span class="string">android:layout_width="wrap_content"</span>
+            <span class="string">android:layout_height="wrap_content"</span>
+            <span class="string">android:textSize="18sp"</span>
+            <span class="string">android:textStyle="bold"</span>
+            <span class="string">android:textColor="#000000" /&gt;</span>
+
+        <span class="string">&lt;TextView</span>
+            <span class="string">android:id="@+id/tvEmail"</span>
+            <span class="string">android:layout_width="wrap_content"</span>
+            <span class="string">android:layout_height="wrap_content"</span>
+            <span class="string">android:layout_marginTop="4dp"</span>
+            <span class="string">android:textSize="14sp"</span>
+            <span class="string">android:textColor="#666666" /&gt;</span>
+
+        <span class="string">&lt;TextView</span>
+            <span class="string">android:id="@+id/tvUsername"</span>
+            <span class="string">android:layout_width="wrap_content"</span>
+            <span class="string">android:layout_height="wrap_content"</span>
+            <span class="string">android:layout_marginTop="4dp"</span>
+            <span class="string">android:textSize="12sp"</span>
+            <span class="string">android:textColor="#999999" /&gt;</span>
+
+    <span class="string">&lt;/LinearLayout&gt;</span>
+<span class="string">&lt;/androidx.cardview.widget.CardView&gt;</span></code></pre>
+            </div>
+        </div>
+
+        <!-- COMPLETE FLOW SECTION -->
+        <div id="complete" class="section">
+            <h2>🔄 Complete MVVM Data Flow</h2>
+
+            <h3>Step-by-Step Execution Flow</h3>
+            
+            <div class="flow-diagram">
+                <div class="flow-box" style="background: linear-gradient(135deg, #FF6B6B 0%, #C92A2A 100%);">
+                    1️⃣ User clicks "Fetch Users" button
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #4ECDC4 0%, #1B9AAA 100%);">
+                    2️⃣ MainActivity calls viewModel.fetchUsers()
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #95E1D3 0%, #38A3A5 100%);">
+                    3️⃣ ViewModel posts Loading state to LiveData
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #FFE66D 0%, #FFAA00 100%);">
+                    4️⃣ View observes Loading → shows ProgressBar
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #6BCB77 0%, #4D96A9 100%);">
+                    5️⃣ ViewModel calls repository.getAllUsers()
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #C77DFF 0%, #9D4EDD 100%);">
+                    6️⃣ Repository makes API call on IO thread
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #FF9CEE 0%, #FF70A6 100%);">
+                    7️⃣ Retrofit executes network request
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #70E2FF 0%, #00A5E0 100%);">
+                    8️⃣ Repository receives response, wraps in Resource
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #A1E887 0%, #5FD068 100%);">
+                    9️⃣ ViewModel receives Resource.Success with data
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #FFABAB 0%, #FF6B6B 100%);">
+                    🔟 ViewModel posts Success to LiveData
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #FFD93D 0%, #FFC93D 100%);">
+                    1️⃣1️⃣ View observes Success → hides ProgressBar
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #6BCF7F 0%, #4CAF50 100%);">
+                    1️⃣2️⃣ View updates RecyclerView with data
+                </div>
+                <div class="arrow">⬇️</div>
+                <div class="flow-box" style="background: linear-gradient(135deg, #A8E6CF 0%, #56C596 100%);">
+                    ✅ USER SEES LIST OF USERS!
+                </div>
+            </div>
+
+            <h3>🎬 Code Execution Sequence</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>Execution Timeline</span>
+                </div>
+                <pre><code><span class="comment">// 1. User clicks button</span>
+binding.btnFetchUsers.setOnClickListener { 
+    viewModel.fetchUsers() 
+}
+
+<span class="comment">// 2. ViewModel launches coroutine</span>
+<span class="keyword">fun</span> <span class="function">fetchUsers</span>() {
+    viewModelScope.launch { <span class="comment">// Main thread</span>
+        _users.postValue(<span class="class-name">Resource</span>.<span class="class-name">Loading</span>())
+        
+        <span class="comment">// 3. Repository call (switches to IO thread)</span>
+        <span class="keyword">val</span> result = repository.getAllUsers()
+        
+        <span class="comment">// 4. Update LiveData (back on Main thread)</span>
+        _users.postValue(result)
+    }
+}
+
+<span class="comment">// 5. Repository makes network call</span>
+<span class="keyword">suspend fun</span> <span class="function">getAllUsers</span>() = withContext(<span class="class-name">Dispatchers</span>.<span class="class-name">IO</span>) {
+    <span class="keyword">val</span> response = apiService.getUsers()
+    <span class="comment">// Returns Resource.Success or Resource.Error</span>
+}
+
+<span class="comment">// 6. View observes changes</span>
+viewModel.users.observe(<span class="keyword">this</span>) { resource -&gt;
+    <span class="keyword">when</span> (resource) {
+        <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Loading</span> -&gt; showLoading(<span class="keyword">true</span>)
+        <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Success</span> -&gt; {
+            showLoading(<span class="keyword">false</span>)
+            userAdapter.submitList(resource.data)
+        }
+        <span class="keyword">is</span> <span class="class-name">Resource</span>.<span class="class-name">Error</span> -&gt; showError(resource.message)
+    }
+}</code></pre>
+            </div>
+
+            <h3>🧩 How Components Interact</h3>
+            
+            <div class="info-box">
+                <strong>MainActivity (View)</strong><br>
+                • Creates ViewModel using ViewModelProvider<br>
+                • Observes LiveData from ViewModel<br>
+                • Updates UI based on observed data<br>
+                • Handles user interactions<br>
+                • NO business logic here!
+            </div>
+
+            <div class="info-box">
+                <strong>UserViewModel</strong><br>
+                • Exposes LiveData for View to observe<br>
+                • Calls Repository methods<br>
+                • Transforms data if needed<br>
+                • Handles UI states (Loading, Success, Error)<br>
+                • Survives configuration changes
+            </div>
+
+            <div class="info-box">
+                <strong>UserRepository</strong><br>
+                • Communicates with API using Retrofit<br>
+                • Could also manage local database (Room)<br>
+                • Decides data source (cache vs network)<br>
+                • Wraps responses in Resource class<br>
+                • Handles exceptions
+            </div>
+
+            <div class="info-box">
+                <strong>ApiService (Retrofit)</strong><br>
+                • Defines API endpoints<br>
+                • Makes actual HTTP requests<br>
+                • Returns Response objects<br>
+                • Uses suspend functions for coroutines
+            </div>
+        </div>
+
+        <!-- BEST PRACTICES SECTION -->
+        <div id="best-practices" class="section">
+            <h2>✨ MVVM Best Practices & Common Mistakes</h2>
+
+            <h3>✅ Do's (Follow These)</h3>
+            
+            <div class="success-box">
+                <strong>1. Separation of Concerns</strong><br>
+                • View = UI only, no business logic<br>
+                • ViewModel = Business logic, no Android dependencies<br>
+                • Repository = Data handling only<br>
+                • Model = Pure data classes
+            </div>
+
+            <div class="success-box">
+                <strong>2. ViewModel Rules</strong><br>
+                • Use <code>viewModelScope</code> for coroutines<br>
+                • Expose immutable LiveData (<code>LiveData</code> not <code>MutableLiveData</code>)<br>
+                • Never hold View references<br>
+                • Never pass Context (use AndroidViewModel if needed)
+            </div>
+
+            <div class="success-box">
+                <strong>3. LiveData/StateFlow</strong><br>
+                • Use LiveData for simple cases<br>
+                • Use StateFlow for complex reactive scenarios<br>
+                • Always observe in View's lifecycle<br>
+                • Use <code>observe()</code> not <code>observeForever()</code>
+            </div>
+
+            <div class="success-box">
+                <strong>4. Repository Pattern</strong><br>
+                • Repository is single source of truth<br>
+                • Use <code>suspend</code> functions for async operations<br>
+                • Use <code>withContext(Dispatchers.IO)</code> for network/DB<br>
+                • Wrap responses in Resource/Result class<br>
+                • Implement caching when appropriate
+            </div>
+
+            <div class="success-box">
+                <strong>5. Threading</strong><br>
+                • Use Coroutines over AsyncTask<br>
+                • <code>Dispatchers.Main</code> - UI operations<br>
+                • <code>Dispatchers.IO</code> - Network/Database<br>
+                • <code>Dispatchers.Default</code> - Heavy computations<br>
+                • ViewModel scope auto-cancels coroutines
+            </div>
+
+            <h3>❌ Don'ts (Avoid These Mistakes)</h3>
+            
+            <div class="warning-box">
+                <strong>1. ❌ ViewModel Holding View Reference</strong><br>
+                <code>class BadViewModel(private val activity: MainActivity)</code><br>
+                → Causes memory leaks! ViewModel outlives Activity.
+            </div>
+
+            <div class="warning-box">
+                <strong>2. ❌ Business Logic in View</strong><br>
+                Performing calculations, data transformations in Activity/Fragment<br>
+                → Put logic in ViewModel, keep View dumb!
+            </div>
+
+            <div class="warning-box">
+                <strong>3. ❌ ViewModel Accessing View Directly</strong><br>
+                <code>textView.text = "Hello"</code> in ViewModel<br>
+                → Use LiveData/StateFlow to communicate!
+            </div>
+
+            <div class="warning-box">
+                <strong>4. ❌ Not Using ViewModelProvider</strong><br>
+                <code>val viewModel = UserViewModel()</code><br>
+                → Always use ViewModelProvider for proper lifecycle!
+            </div>
+
+            <div class="warning-box">
+                <strong>5. ❌ Exposing Mutable LiveData</strong><br>
+                <code>val users: MutableLiveData&lt;List&lt;User&gt;&gt;</code><br>
+                → Expose LiveData, keep MutableLiveData private!
+            </div>
+
+            <div class="warning-box">
+                <strong>6. ❌ Network Calls in ViewModel</strong><br>
+                Directly using Retrofit in ViewModel<br>
+                → Use Repository to abstract data source!
+            </div>
+
+            <div class="warning-box">
+                <strong>7. ❌ Not Handling Loading/Error States</strong><br>
+                Only showing data, ignoring loading and errors<br>
+                → Use Resource wrapper for all states!
+            </div>
+
+            <h3>🎯 Testing MVVM Components</h3>
+            
+            <div class="code-block">
+                <div class="code-header">
+                    <span>ViewModel Unit Test Example</span>
+                    <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                </div>
+                <pre><code><span class="keyword">class</span> <span class="class-name">UserViewModelTest</span> {
+    
+    <span class="annotation">@get:Rule</span>
+    <span class="keyword">val</span> instantTaskExecutorRule = <span class="class-name">InstantTaskExecutorRule</span>()
+    
+    <span class="keyword">private lateinit var</span> viewModel: <span class="class-name">UserViewModel</span>
+    <span class="keyword">private lateinit var</span> repository: <span class="class-name">UserRepository</span>
+    
+    <span class="annotation">@Before</span>
+    <span class="keyword">fun</span> <span class="function">setup</span>() {
+        repository = mock(<span class="class-name">UserRepository</span>::<span class="keyword">class</span>.java)
+        viewModel = <span class="class-name">UserViewModel</span>(repository)
+    }
+    
+    <span class="annotation">@Test</span>
+    <span class="keyword">fun</span> <span class="function">fetchUsers_returnsSuccess</span>() = runBlocking {
+        <span class="comment">// Given</span>
+        <span class="keyword">val</span> users = listOf(<span class="class-name">User</span>(<span class="class-name">1</span>, <span class="string">"John"</span>, <span class="string">"john@test.com"</span>, <span class="string">"john"</span>))
+        <span class="keyword">val</span> resource = <span class="class-name">Resource</span>.<span class="class-name">Success</span>(users)
+        `<span class="keyword">when</span>`(repository.getAllUsers()).thenReturn(resource)
+        
+        <span class="comment">// When</span>
+        viewModel.fetchUsers()
+        
+        <span class="comment">// Then</span>
+        <span class="keyword">val</span> result = viewModel.users.getOrAwaitValue()
+        assertThat(result).isInstanceOf(<span class="class-name">Resource</span>.<span class="class-name">Success</span>::<span class="keyword">class</span>.java)
+        assertThat(result.data).hasSize(<span class="class-name">1</span>)
+    }
+}</code></pre>
+            </div>
+
+            <h3>📚 Advanced Topics to Explore</h3>
+            <ul>
+                <li><strong>Room Database:</strong> Local caching with offline support</li>
+                <li><strong>Hilt/Dagger:</strong> Dependency injection for cleaner code</li>
+                <li><strong>Paging 3:</strong> Efficient loading of large datasets</li>
+                <li><strong>Navigation Component:</strong> Fragment navigation with Safe Args</li>
+                <li><strong>WorkManager:</strong> Background tasks that survive app restarts</li>
+                <li><strong>Flow:</strong> Advanced reactive streams beyond LiveData</li>
+                <li><strong>DataStore:</strong> Modern replacement for SharedPreferences</li>
+            </ul>
+
+            <h3>🚀 Next Steps</h3>
+            <ol>
+                <li>Copy all code files into Android Studio project</li>
+                <li>Add dependencies to build.gradle</li>
+                <li>Run the app and click "Fetch Users" button</li>
+                <li>Observe the complete MVVM flow in action</li>
+                <li>Experiment: Add delete/update functionality</li>
+                <li>Practice: Create your own MVVM app from scratch</li>
+                <li>Explore: Add Room database for offline support</li>
+            </ol>
+
+            <div class="success-box">
+                <strong>🎓 You're Now Ready!</strong><br>
+                With this tutorial, you have a complete understanding of MVVM architecture. Practice building apps using this pattern, and you'll never feel uncomfortable with MVVM again. Keep coding! 💪
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block');
+            const code = codeBlock.querySelector('pre code').innerText;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                const originalText = button.innerText;
+                button.innerText = 'Copied!';
+                button.style.background = '#4CAF50';
+                
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy code');
+            });
+        }
+    </script>
+</body>
+</html>
+
