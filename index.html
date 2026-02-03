@@ -273,11 +273,162 @@
         .folder { color: #FFD700; }
         .file { color: #4EC9B0; }
 
+        /* Live Demo Styles */
+        .demo-container {
+            background: var(--bg-medium);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .demo-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .demo-btn {
+            background: var(--primary);
+            color: var(--bg-dark);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demo-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(61, 220, 132, 0.4);
+        }
+
+        .demo-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+
+        .demo-status.loading {
+            background: rgba(66, 133, 244, 0.2);
+            border-left: 4px solid var(--accent);
+        }
+
+        .demo-status.success {
+            background: rgba(76, 175, 80, 0.2);
+            border-left: 4px solid var(--success);
+        }
+
+        .demo-status.error {
+            background: rgba(244, 67, 54, 0.2);
+            border-left: 4px solid #f44336;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .user-list {
+            display: grid;
+            gap: 15px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .user-card {
+            background: var(--bg-light);
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        .user-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(61, 220, 132, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .user-card h4 {
+            color: var(--primary);
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+
+        .user-card p {
+            color: var(--text-secondary);
+            margin: 5px 0;
+            font-size: 0.95rem;
+        }
+
+        .user-card .user-email {
+            color: var(--accent);
+        }
+
+        .user-card .user-username {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
         @media (max-width: 768px) {
             header h1 { font-size: 1.8rem; }
             .container { padding: 10px; }
             .section { padding: 20px; }
             .nav-btn { padding: 10px 16px; font-size: 0.9rem; }
+            .demo-container { padding: 20px; }
+            .demo-controls { flex-direction: column; }
+            .demo-btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -297,6 +448,7 @@
             <button class="nav-btn" onclick="showSection('view')">View Layer</button>
             <button class="nav-btn" onclick="showSection('complete')">Complete Flow</button>
             <button class="nav-btn" onclick="showSection('best-practices')">Best Practices</button>
+            <button class="nav-btn" onclick="showSection('live-demo')">🎮 Live Demo</button>
         </div>
 
         <!-- OVERVIEW SECTION -->
@@ -1454,9 +1606,405 @@ viewModel.users.observe(<span class="keyword">this</span>) { resource -&gt;
                 With this tutorial, you have a complete understanding of MVVM architecture. Practice building apps using this pattern, and you'll never feel uncomfortable with MVVM again. Keep coding! 💪
             </div>
         </div>
+
+        <!-- LIVE DEMO SECTION -->
+        <div id="live-demo" class="section">
+            <h2>🎮 Live MVVM Demo - Fetch Users from API</h2>
+            
+            <p>Experience MVVM architecture in action! This live demo demonstrates best practices with real API calls to JSONPlaceholder.</p>
+
+            <div class="info-box">
+                <strong>📋 MVVM Implementation:</strong><br>
+                • <strong>Model:</strong> User data class<br>
+                • <strong>Repository:</strong> Handles API calls and error handling<br>
+                • <strong>ViewModel:</strong> Manages state (loading, success, error) and business logic<br>
+                • <strong>View:</strong> Reactive UI that observes ViewModel state changes
+            </div>
+
+            <div class="demo-container">
+                <h3>User List Demo</h3>
+                
+                <div class="info-box" style="margin-bottom: 20px; font-size: 0.9rem;">
+                    <strong>📡 Data Source:</strong> This demo attempts to fetch data from JSONPlaceholder API. If the API is unavailable, it automatically falls back to mock data to demonstrate the MVVM pattern.
+                </div>
+                
+                <div class="demo-controls">
+                    <button class="demo-btn" onclick="demoApp.fetchUsers()">
+                        <span>📥</span>
+                        Fetch Users
+                    </button>
+                    <button class="demo-btn" onclick="demoApp.clearUsers()">
+                        <span>🗑️</span>
+                        Clear List
+                    </button>
+                    <button class="demo-btn" onclick="demoApp.refreshUsers()">
+                        <span>🔄</span>
+                        Refresh
+                    </button>
+                </div>
+
+                <div id="demo-status"></div>
+                <div id="user-list"></div>
+            </div>
+
+            <h3>💡 Best Practices Demonstrated</h3>
+            <div class="success-box">
+                <ul>
+                    <li><strong>Separation of Concerns:</strong> Clear boundaries between Model, View, and ViewModel</li>
+                    <li><strong>Single Responsibility:</strong> Each class has one specific job</li>
+                    <li><strong>Observable Pattern:</strong> View reacts to ViewModel state changes</li>
+                    <li><strong>Error Handling:</strong> Proper try-catch with user-friendly messages</li>
+                    <li><strong>Loading States:</strong> Visual feedback during async operations</li>
+                    <li><strong>Immutability:</strong> State updates through proper methods</li>
+                    <li><strong>API Abstraction:</strong> Repository pattern abstracts data source</li>
+                    <li><strong>Testability:</strong> Each layer can be tested independently</li>
+                </ul>
+            </div>
+
+            <h3>📝 Code Architecture</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                <pre><code><span class="comment">// ============ MODEL ============</span>
+<span class="keyword">class</span> <span class="class-name">User</span> {
+    <span class="keyword">constructor</span>(id, name, email, username) {
+        <span class="keyword">this</span>.id = id;
+        <span class="keyword">this</span>.name = name;
+        <span class="keyword">this</span>.email = email;
+        <span class="keyword">this</span>.username = username;
+    }
+}
+
+<span class="comment">// ============ REPOSITORY ============</span>
+<span class="keyword">class</span> <span class="class-name">UserRepository</span> {
+    <span class="keyword">constructor</span>(baseUrl) {
+        <span class="keyword">this</span>.baseUrl = baseUrl;
+    }
+
+    <span class="keyword">async</span> <span class="function">fetchUsers</span>() {
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> response = <span class="keyword">await</span> fetch(<span class="string">`</span><span class="keyword">${this.baseUrl}</span><span class="string">/users`</span>);
+            <span class="keyword">if</span> (!response.ok) {
+                <span class="keyword">throw new</span> <span class="class-name">Error</span>(<span class="string">`HTTP error! status: </span><span class="keyword">${response.status}</span><span class="string">`</span>);
+            }
+            <span class="keyword">const</span> data = <span class="keyword">await</span> response.json();
+            <span class="keyword">return</span> data.map(u => 
+                <span class="keyword">new</span> <span class="class-name">User</span>(u.id, u.name, u.email, u.username)
+            );
+        } <span class="keyword">catch</span> (error) {
+            console.error(<span class="string">'Repository Error:'</span>, error);
+            <span class="keyword">throw</span> error;
+        }
+    }
+}
+
+<span class="comment">// ============ VIEWMODEL ============</span>
+<span class="keyword">class</span> <span class="class-name">UserViewModel</span> {
+    <span class="keyword">constructor</span>(repository) {
+        <span class="keyword">this</span>.repository = repository;
+        <span class="keyword">this</span>.state = {
+            users: [],
+            loading: <span class="keyword">false</span>,
+            error: <span class="keyword">null</span>
+        };
+        <span class="keyword">this</span>.observers = [];
+    }
+
+    <span class="function">subscribe</span>(observer) {
+        <span class="keyword">this</span>.observers.push(observer);
+    }
+
+    <span class="function">notifyObservers</span>() {
+        <span class="keyword">this</span>.observers.forEach(observer => observer(<span class="keyword">this</span>.state));
+    }
+
+    <span class="keyword">async</span> <span class="function">loadUsers</span>() {
+        <span class="keyword">this</span>.state = { ...<span class="keyword">this</span>.state, loading: <span class="keyword">true</span>, error: <span class="keyword">null</span> };
+        <span class="keyword">this</span>.notifyObservers();
+
+        <span class="keyword">try</span> {
+            <span class="keyword">const</span> users = <span class="keyword">await</span> <span class="keyword">this</span>.repository.fetchUsers();
+            <span class="keyword">this</span>.state = { users, loading: <span class="keyword">false</span>, error: <span class="keyword">null</span> };
+        } <span class="keyword">catch</span> (error) {
+            <span class="keyword">this</span>.state = { 
+                users: [], 
+                loading: <span class="keyword">false</span>, 
+                error: <span class="string">'Failed to load users. Please try again.'</span> 
+            };
+        }
+        <span class="keyword">this</span>.notifyObservers();
+    }
+
+    <span class="function">clearUsers</span>() {
+        <span class="keyword">this</span>.state = { users: [], loading: <span class="keyword">false</span>, error: <span class="keyword">null</span> };
+        <span class="keyword">this</span>.notifyObservers();
+    }
+}
+
+<span class="comment">// ============ VIEW ============</span>
+<span class="keyword">class</span> <span class="class-name">UserView</span> {
+    <span class="keyword">constructor</span>(statusElementId, listElementId) {
+        <span class="keyword">this</span>.statusElement = document.getElementById(statusElementId);
+        <span class="keyword">this</span>.listElement = document.getElementById(listElementId);
+    }
+
+    <span class="function">render</span>(state) {
+        <span class="keyword">this</span>.renderStatus(state);
+        <span class="keyword">this</span>.renderUserList(state);
+    }
+
+    <span class="function">renderStatus</span>(state) {
+        <span class="keyword">if</span> (state.loading) {
+            <span class="keyword">this</span>.statusElement.innerHTML = <span class="string">`
+                &lt;div class="demo-status loading"&gt;
+                    &lt;div class="spinner"&gt;&lt;/div&gt;
+                    Loading users from API...
+                &lt;/div&gt;
+            `</span>;
+        } <span class="keyword">else if</span> (state.error) {
+            <span class="keyword">this</span>.statusElement.innerHTML = <span class="string">`
+                &lt;div class="demo-status error"&gt;
+                    ❌ </span><span class="keyword">${state.error}</span><span class="string">
+                &lt;/div&gt;
+            `</span>;
+        } <span class="keyword">else if</span> (state.users.length > <span class="class-name">0</span>) {
+            <span class="keyword">this</span>.statusElement.innerHTML = <span class="string">`
+                &lt;div class="demo-status success"&gt;
+                    ✅ Successfully loaded </span><span class="keyword">${state.users.length}</span><span class="string"> users
+                &lt;/div&gt;
+            `</span>;
+        } <span class="keyword">else</span> {
+            <span class="keyword">this</span>.statusElement.innerHTML = <span class="string">''</span>;
+        }
+    }
+
+    <span class="function">renderUserList</span>(state) {
+        <span class="keyword">if</span> (state.users.length === <span class="class-name">0</span> && !state.loading) {
+            <span class="keyword">this</span>.listElement.innerHTML = <span class="string">`
+                &lt;div class="empty-state"&gt;
+                    &lt;p style="font-size: 3rem;"&gt;📭&lt;/p&gt;
+                    &lt;h3&gt;No users loaded yet&lt;/h3&gt;
+                    &lt;p&gt;Click "Fetch Users" to load data from the API&lt;/p&gt;
+                &lt;/div&gt;
+            `</span>;
+            <span class="keyword">return</span>;
+        }
+
+        <span class="keyword">const</span> userCards = state.users.map(user => <span class="string">`
+            &lt;div class="user-card"&gt;
+                &lt;h4&gt;👤 </span><span class="keyword">${user.name}</span><span class="string">&lt;/h4&gt;
+                &lt;p class="user-username"&gt;Username: @</span><span class="keyword">${user.username}</span><span class="string">&lt;/p&gt;
+                &lt;p class="user-email"&gt;✉️ </span><span class="keyword">${user.email}</span><span class="string">&lt;/p&gt;
+                &lt;p&gt;ID: </span><span class="keyword">${user.id}</span><span class="string">&lt;/p&gt;
+            &lt;/div&gt;
+        `</span>).join(<span class="string">''</span>);
+
+        <span class="keyword">this</span>.listElement.innerHTML = <span class="string">`&lt;div class="user-list"&gt;</span><span class="keyword">${userCards}</span><span class="string">&lt;/div&gt;`</span>;
+    }
+}</code></pre>
+            </div>
+
+            <div class="warning-box">
+                <strong>⚡ Try it yourself:</strong><br>
+                Click the buttons above to see MVVM in action! Notice how the UI automatically updates when data changes, and how error states are properly handled.
+            </div>
+        </div>
     </div>
 
     <script>
+        // ============ MVVM LIVE DEMO IMPLEMENTATION ============
+        
+        // MODEL
+        class User {
+            constructor(id, name, email, username) {
+                this.id = id;
+                this.name = name;
+                this.email = email;
+                this.username = username;
+            }
+        }
+
+        // REPOSITORY - Handles data fetching
+        class UserRepository {
+            constructor(baseUrl) {
+                this.baseUrl = baseUrl;
+            }
+
+            // Mock data for demonstration when API is blocked
+            getMockUsers() {
+                return [
+                    new User(1, "Leanne Graham", "leanne@example.com", "Bret"),
+                    new User(2, "Ervin Howell", "ervin@example.com", "Antonette"),
+                    new User(3, "Clementine Bauch", "clementine@example.com", "Samantha"),
+                    new User(4, "Patricia Lebsack", "patricia@example.com", "Karianne"),
+                    new User(5, "Chelsey Dietrich", "chelsey@example.com", "Kamren"),
+                    new User(6, "Mrs. Dennis Schulist", "dennis@example.com", "Leopoldo_Corkery"),
+                    new User(7, "Kurtis Weissnat", "kurtis@example.com", "Elwyn.Skiles"),
+                    new User(8, "Nicholas Runolfsdottir", "nicholas@example.com", "Maxime_Nienow"),
+                    new User(9, "Glenna Reichert", "glenna@example.com", "Delphine"),
+                    new User(10, "Clementina DuBuque", "clementina@example.com", "Moriah.Stanton")
+                ];
+            }
+
+            async fetchUsers() {
+                try {
+                    const response = await fetch(`${this.baseUrl}/users`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    return data.map(u => new User(u.id, u.name, u.email, u.username));
+                } catch (error) {
+                    console.warn('API call failed, using mock data:', error.message);
+                    // Fallback to mock data for demonstration
+                    return new Promise((resolve) => {
+                        setTimeout(() => resolve(this.getMockUsers()), 500); // Simulate network delay
+                    });
+                }
+            }
+        }
+
+        // VIEWMODEL - Business logic and state management
+        class UserViewModel {
+            constructor(repository) {
+                this.repository = repository;
+                this.state = {
+                    users: [],
+                    loading: false,
+                    error: null
+                };
+                this.observers = [];
+            }
+
+            subscribe(observer) {
+                this.observers.push(observer);
+            }
+
+            notifyObservers() {
+                this.observers.forEach(observer => observer(this.state));
+            }
+
+            async loadUsers() {
+                this.state = { ...this.state, loading: true, error: null };
+                this.notifyObservers();
+
+                try {
+                    const users = await this.repository.fetchUsers();
+                    this.state = { users, loading: false, error: null };
+                } catch (error) {
+                    this.state = { 
+                        users: [], 
+                        loading: false, 
+                        error: 'Failed to load users. Please check your connection and try again.' 
+                    };
+                }
+                this.notifyObservers();
+            }
+
+            clearUsers() {
+                this.state = { users: [], loading: false, error: null };
+                this.notifyObservers();
+            }
+        }
+
+        // VIEW - UI rendering
+        class UserView {
+            constructor(statusElementId, listElementId) {
+                this.statusElement = document.getElementById(statusElementId);
+                this.listElement = document.getElementById(listElementId);
+            }
+
+            render(state) {
+                this.renderStatus(state);
+                this.renderUserList(state);
+            }
+
+            renderStatus(state) {
+                if (state.loading) {
+                    this.statusElement.innerHTML = `
+                        <div class="demo-status loading">
+                            <div class="spinner"></div>
+                            Loading users from JSONPlaceholder API...
+                        </div>
+                    `;
+                } else if (state.error) {
+                    this.statusElement.innerHTML = `
+                        <div class="demo-status error">
+                            ❌ ${state.error}
+                        </div>
+                    `;
+                } else if (state.users.length > 0) {
+                    this.statusElement.innerHTML = `
+                        <div class="demo-status success">
+                            ✅ Successfully loaded ${state.users.length} users
+                        </div>
+                    `;
+                } else {
+                    this.statusElement.innerHTML = '';
+                }
+            }
+
+            renderUserList(state) {
+                if (state.users.length === 0 && !state.loading) {
+                    this.listElement.innerHTML = `
+                        <div class="empty-state">
+                            <p style="font-size: 3rem;">📭</p>
+                            <h3>No users loaded yet</h3>
+                            <p>Click "Fetch Users" to load data from JSONPlaceholder API</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const userCards = state.users.map(user => `
+                    <div class="user-card">
+                        <h4>👤 ${user.name}</h4>
+                        <p class="user-username">Username: @${user.username}</p>
+                        <p class="user-email">✉️ ${user.email}</p>
+                        <p>ID: ${user.id}</p>
+                    </div>
+                `).join('');
+
+                this.listElement.innerHTML = `<div class="user-list">${userCards}</div>`;
+            }
+        }
+
+        // APPLICATION SETUP - Wiring everything together
+        class DemoApp {
+            constructor() {
+                this.repository = new UserRepository('https://jsonplaceholder.typicode.com');
+                this.viewModel = new UserViewModel(this.repository);
+                this.view = new UserView('demo-status', 'user-list');
+                
+                // Subscribe view to viewModel changes (Observer pattern)
+                this.viewModel.subscribe((state) => {
+                    this.view.render(state);
+                });
+                
+                // Initial render
+                this.view.render(this.viewModel.state);
+            }
+
+            fetchUsers() {
+                this.viewModel.loadUsers();
+            }
+
+            clearUsers() {
+                this.viewModel.clearUsers();
+            }
+
+            refreshUsers() {
+                this.viewModel.loadUsers();
+            }
+        }
+
+        // Initialize the demo app
+        let demoApp;
+        document.addEventListener('DOMContentLoaded', () => {
+            demoApp = new DemoApp();
+        });
+
+        // ============ NAVIGATION & UI HELPERS ============
+        
         function showSection(sectionId) {
             // Hide all sections
             document.querySelectorAll('.section').forEach(section => {
